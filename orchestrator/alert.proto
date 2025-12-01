@@ -1,0 +1,16 @@
+syntax = "proto3";
+package emergency;
+
+service EmergencyService {
+  rpc SendAlert (AlertRequest) returns (AlertResponse);
+}
+
+message AlertRequest {
+  string zone = 1;
+  string message = 2;
+  int32 priority = 3;
+}
+
+message AlertResponse {
+  string status = 1;
+}

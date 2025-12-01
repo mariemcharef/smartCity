@@ -1,0 +1,417 @@
+openapi: 3.0.3
+info:
+  title: Service REST - Mobilité Intelligente
+  description: |
+    API REST pour la gestion des transports publics dans une ville intelligente.
+    Ce service permet de consulter les horaires, l'état du trafic, et les correspondances.
+  version: 1.0.0
+  contact:
+    name: Smart City Transport Team
+    email: transport@smartcity.tn
+
+servers:
+  - url: http://localhost:3001/api
+    description: Serveur de développement
+  - url: http://api.smartcity.tn/transport
+    description: Serveur de production
+
+tags:
+  - name: Lines
+    description: Gestion des lignes de transport
+  - name: Traffic
+    description: État du trafic et incidents
+  - name: Connections
+    description: Correspondances entre lignes
+  - name: Availability
+    description: Disponibilité des transports
+
+paths:
+  /health:
+    get:
+      summary: Health check du service
+      tags: [Health]
+      responses:
+        '200':
+          description: Service opérationnel
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /lines:
+    get:
+      summary: Récupérer toutes les lignes de transport
+      tags: [Lines]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [bus, metro, train]
+          description: Filtrer par type de transport
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [on_time, delayed, cancelled]
+          description: Filtrer par statut
+      responses:
+        '200':
+          description: Liste des lignes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  lines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Line'
+
+  /lines/{id}:
+    get:
+      summary: Récupérer une ligne spécifique
+      tags: [Lines]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails de la ligne
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Line'
+        '404':
+          description: Ligne non trouvée
+    
+    put:
+      summary: Mettre à jour le statut d'une ligne
+      tags: [Lines]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [on_time, delayed, cancelled]
+      responses:
+        '200':
+          description: Statut mis à jour
+        '400':
+          description: Statut invalide
+        '404':
+          description: Ligne non trouvée
+
+  /lines/{id}/timetable:
+    get:
+      summary: Récupérer les horaires d'une ligne
+      tags: [Lines]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Horaires de la ligne
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  line_id:
+                    type: string
+                  line_name:
+                    type: string
+                  type:
+                    type: string
+                  timetable:
+                    type: array
+                    items:
+                      type: string
+                  frequency:
+                    type: integer
+                  status:
+                    type: string
+        '404':
+          description: Ligne non trouvée
+
+  /lines/{id}/next-departure:
+    get:
+      summary: Prochain départ d'une ligne
+      tags: [Lines]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Prochain départ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  line_id:
+                    type: string
+                  line_name:
+                    type: string
+                  current_time:
+                    type: string
+                  next_departure:
+                    type: string
+                  status:
+                    type: string
+                  estimated_delay:
+                    type: integer
+        '404':
+          description: Ligne non trouvée
+
+  /lines/{id}/report:
+    post:
+      summary: Signaler un problème sur une ligne
+      tags: [Lines]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - issue_type
+                - description
+              properties:
+                issue_type:
+                  type: string
+                  example: delay
+                description:
+                  type: string
+                  example: Bus en retard de 20 minutes
+                reporter:
+                  type: string
+                  example: citoyen123
+      responses:
+        '201':
+          description: Signalement créé
+        '400':
+          description: Champs manquants
+        '404':
+          description: Ligne non trouvée
+
+  /traffic/status:
+    get:
+      summary: État général du trafic
+      tags: [Traffic]
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, moderate, high]
+      responses:
+        '200':
+          description: État du trafic
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [normal, disrupted]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  incidents_count:
+                    type: integer
+                  incidents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Incident'
+
+  /traffic/line/{id}:
+    get:
+      summary: État du trafic pour une ligne
+      tags: [Traffic]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: État du trafic de la ligne
+        '404':
+          description: Ligne non trouvée
+
+  /traffic/incidents/{id}:
+    delete:
+      summary: Résoudre un incident
+      tags: [Traffic]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Incident résolu
+        '404':
+          description: Incident non trouvé
+
+  /connections:
+    get:
+      summary: Récupérer toutes les correspondances
+      tags: [Connections]
+      responses:
+        '200':
+          description: Liste des correspondances
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  connections:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Connection'
+
+  /connections/{stop}:
+    get:
+      summary: Correspondances à un arrêt
+      tags: [Connections]
+      parameters:
+        - name: stop
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Correspondances disponibles
+        '404':
+          description: Arrêt non trouvé
+
+  /transport/availability:
+    get:
+      summary: Disponibilité des transports
+      tags: [Availability]
+      parameters:
+        - name: line_id
+          in: query
+          schema:
+            type: string
+        - name: transport_type
+          in: query
+          schema:
+            type: string
+            enum: [bus, metro, train]
+      responses:
+        '200':
+          description: Disponibilité des transports
+
+components:
+  schemas:
+    Line:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        name:
+          type: string
+          example: "Ligne 1 - Centre-Ville ↔ Aéroport"
+        type:
+          type: string
+          enum: [bus, metro, train]
+        timetable:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [on_time, delayed, cancelled]
+        frequency:
+          type: integer
+          description: Fréquence en minutes
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+        line:
+          type: string
+        type:
+          type: string
+        severity:
+          type: string
+          enum: [low, moderate, high]
+        reason:
+          type: string
+        delay_mins:
+          type: integer
+        affected_stops:
+          type: array
+          items:
+            type: string
+        estimated_resolution:
+          type: string
+
+    Connection:
+      type: object
+      properties:
+        stop_name:
+          type: string
+        lines_available:
+          type: array
+          items:
+            type: string
+        connections:
+          type: array
+          items:
+            type: object
+            properties:
+              from:
+                type: string
+              to:
+                type: string
+              walking_time:
+                type: integer

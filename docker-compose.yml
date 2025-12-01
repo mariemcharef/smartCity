@@ -1,0 +1,41 @@
+  version: '3.8'
+  services:
+    transport-rest:
+      build: ./transport-rest
+      container_name: transport-rest
+      ports: ["3001:3001"]
+
+    places-graphql:
+      build: ./places-graphql
+      container_name: places-graphql
+      ports: ["3002:3002"]
+
+    air-soap:
+      build: ./air-soap
+      container_name: air-soap
+      ports: ["3003:3003"]
+
+    emergency-grpc:
+      build: ./emergency-grpc
+      container_name: emergency-grpc
+      ports: ["3004:3004"]
+
+    orchestrator:
+      build: ./orchestrator
+      container_name: orchestrator
+      ports: ["3005:3005"]
+      depends_on:
+        - transport-rest
+        - places-graphql
+        - air-soap
+        - emergency-grpc
+
+    gateway:
+      build: ./gateway
+      container_name: gateway
+      ports: ["8080:80"]
+      depends_on:
+        - orchestrator
+        - transport-rest
+        - places-graphql
+        - air-soap

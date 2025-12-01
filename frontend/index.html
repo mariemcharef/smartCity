@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCity - Transport</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚍 SmartCity Transport</h1>
+            <p class="subtitle">Système de mobilité intelligente en temps réel</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('lines', event)">📋 Lignes</button>
+            <button class="tab" onclick="showTab('traffic', event)">🚦 Trafic</button>
+            <button class="tab" onclick="showTab('connections', event)">🔄 Correspondances</button>
+            <button class="tab" onclick="showTab('places', event)">📍 Lieux</button>
+            <button class="tab" onclick="showTab('air', event)">🌫️ Qualité Air</button>
+            <button class="tab" onclick="showTab('alerts', event)">🚨 Urgences</button>
+            <button class="tab" onclick="showTab('report', event)">⚠️ Signaler</button>
+        </div>
+
+        <div id="lines" class="content active">
+            <div class="filter-section">
+                <div class="filter-group">
+                    <select id="typeFilter" onchange="loadLines()">
+                        <option value="">Tous les types</option>
+                        <option value="bus">Bus</option>
+                        <option value="metro">Métro</option>
+                        <option value="train">Train</option>
+                    </select>
+                    <select id="statusFilter" onchange="loadLines()">
+                        <option value="">Tous les statuts</option>
+                        <option value="on_time">À l'heure</option>
+                        <option value="delayed">Retardé</option>
+                        <option value="cancelled">Annulé</option>
+                    </select>
+                    <button class="actualiser" onclick="loadLines()">🔄 Actualiser</button>
+                </div>
+            </div>
+            <div id="linesContainer" class="grid"></div>
+        </div>
+
+        <div id="traffic" class="content">
+            <div class="filter-section">
+                <div class="filter-group">
+                    <button class="actualiser" onclick="loadTraffic()">🔄 Actualiser l'état du trafic</button>
+                </div>
+            </div>
+            <div id="trafficContainer"></div>
+        </div>
+
+        <div id="connections" class="content">
+            <div class="filter-section">
+                <div class="filter-group">
+                    <button class="actualiser" onclick="loadConnections()">🔄 Actualiser</button>
+                </div>
+            </div>
+            <div id="connectionsContainer" class="grid"></div>
+        </div>
+
+        <div id="places" class="content">
+            <div class="filter-section">
+                <div class="filter-group">
+                    <select id="placeZone" onchange="loadPlaces()">
+                        <option value="">Toutes les zones</option>
+                        <option value="Centre">Centre</option>
+                        <option value="Lac">Lac</option>
+                    </select>
+
+                    <select id="placeType" onchange="loadPlaces()">
+                        <option value="">Tous les types</option>
+                        <option value="cafe">Café</option>
+                        <option value="park">Parc</option>
+                        <option value="hospital">Hôpital</option>
+                    </select>
+
+                    <button class="actualiser" onclick="loadPlaces()">🔄 Actualiser</button>
+                </div>
+            </div>
+            <div id="placesContainer" class="grid"></div>
+        </div>
+
+        <div id="air" class="content">
+            <div class="filter-section">
+                <div class="filter-group">
+                    <select id="airZone" onchange="loadAirQuality()">
+                        <option value="Centre">Centre</option>
+                        <option value="Lac">Lac</option>
+                        <option value="Nord">Nord</option>
+                        <option value="Sud">Sud</option>
+                    </select>
+                    <button class="actualiser" class="actualiser" onclick="loadAirQuality()">🔄 Actualiser</button>
+                </div>
+            </div>
+            <div id="airContainer" class="grid"></div>
+        </div>
+        
+        <div id="alerts" class="content">
+            <div class="card">
+                <h3>🚨 Envoyer une alerte d'urgence</h3>
+                <div class="alert-form">
+                    <select id="alertZone">
+                        <option value="Centre">Centre</option>
+                        <option value="Lac">Lac</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                    <input type="text" id="alertMessage" placeholder="Message de l'alerte">
+                    <select id="alertPriority">
+                        <option value="1">1 - Faible</option>
+                        <option value="2">2 - Moyen</option>
+                        <option value="3">3 - Élevé</option>
+                    </select>
+                    <button onclick="sendAlert()">📤 Envoyer l'alerte</button>
+                </div>
+                <div id="alertResult"></div>
+            </div>
+        </div>
+
+        <div id="report" class="content">
+            <div class="card">
+                <h3>⚠️ Signaler un problème</h3>
+                <div class="report-form">
+                    <select id="reportLine"><option value="">Sélectionnez une ligne</option></select>
+                    <select id="reportType">
+                        <option value="delay">Retard</option>
+                        <option value="cancellation">Annulation</option>
+                        <option value="crowding">Surcharge</option>
+                        <option value="accident">Accident</option>
+                        <option value="other">Autre</option>
+                    </select>
+                    <textarea id="reportDescription" placeholder="Décrivez le problème..."></textarea>
+                    <input type="text" id="reportUser" placeholder="Votre nom (optionnel)">
+                    <button onclick="submitReport()">📤 Envoyer le signalement</button>
+                </div>
+                <div id="reportResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

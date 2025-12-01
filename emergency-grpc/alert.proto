@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package emergency;
+
+message Alert {
+  string id = 1;
+  string message = 2;
+  string timestamp = 3;
+}
+
+message AlertRequest {
+  string message = 1;
+}
+
+message AlertResponse {
+  string status = 1;
+}
+
+message GetAlertsRequest {}  // empty
+message GetAlertsResponse {
+  repeated Alert alerts = 1;
+}
+
+service EmergencyService {
+  rpc SendAlert(AlertRequest) returns (AlertResponse);
+  rpc GetAlerts(GetAlertsRequest) returns (GetAlertsResponse);
+}
