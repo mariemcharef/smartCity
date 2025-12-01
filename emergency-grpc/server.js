@@ -4,7 +4,6 @@ const packageDef = protoLoader.loadSync('alert.proto');
 const grpcObj = grpc.loadPackageDefinition(packageDef);
 const emergency = grpcObj.emergency;
 
-// Temporary in-memory storage
 const alerts = [];
 
 function SendAlert(call, callback) {

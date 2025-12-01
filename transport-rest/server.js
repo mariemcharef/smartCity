@@ -86,7 +86,6 @@ const connections = {
   }
 };
 
-// ==================== ROUTES ====================
 
 app.get('/health', (req, res) => {
   res.json({ 

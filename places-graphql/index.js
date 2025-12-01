@@ -53,7 +53,6 @@ const typeDefs = gql`
   }
 `;
 
-// Sample in-memory data
 let sample = [
   { id: "1", name: "Cafe Bleu", type: "cafe", zone: "Centre" },
   { id: "2", name: "Grand Park", type: "park", zone: "Lac" },
@@ -65,7 +64,6 @@ const resolvers = {
     places: (_, args) => {
       let result = [...sample];
 
-      // Filtering
       if (args.zone) {
         result = result.filter(p => p.zone === args.zone);
       }
@@ -77,7 +75,6 @@ const resolvers = {
         result = result.filter(p => p.name.toLowerCase().includes(s));
       }
 
-      // Sorting
       if (args.sortBy) {
         const key = args.sortBy;
         if (!["name", "type", "zone"].includes(key))
@@ -85,7 +82,6 @@ const resolvers = {
         result.sort((a, b) => a[key].localeCompare(b[key]));
       }
 
-      // Pagination
       const page = args.page || 1;
       const limit = args.limit || result.length;
       const start = (page - 1) * limit;
@@ -115,7 +111,6 @@ const resolvers = {
       const index = sample.findIndex(p => p.id === id);
       if (index === -1) throw new Error("Place not found");
 
-      // Merge old & new
       sample[index] = {
         ...sample[index],
         ...data

@@ -18,7 +18,6 @@ app.get('/planTrip', async (req, res) => {
   try {
     const zone = req.query.zone || 'Centre';
 
-    // Mock AQI response (would normally call SOAP)
     const baseAQI = zone.toLowerCase().includes('centre') ? 130 : 60;
     const aqi = baseAQI;
 
@@ -51,7 +50,6 @@ app.get('/aqi', async (req, res) => {
   try {
     const zone = req.query.zone || 'Centre';
     
-    // For now, return mock data since SOAP parsing is problematic
     const baseAQI = zone.toLowerCase().includes('centre') ? 130 : 60;
     const pollutants = {
       NO2: baseAQI * 0.3,

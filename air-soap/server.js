@@ -26,7 +26,7 @@ const service = {
 const xml = fs.readFileSync('air.wsdl', 'utf8');
 
 const server = http.createServer(function(req, res) {
-  res.statusCode = 404; // return 404 if not SOAP request
+  res.statusCode = 404; 
   res.end();
 });
 
